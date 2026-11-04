@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  firstName String?  @map("first_name")
+  lastName  String?  @map("last_name")
+  isActive  Boolean  @default(true) @map("is_active")
+  role      String   @default("customer")
+  name  String?
+  phone  String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  refreshTokens RefreshToken[]
+  orders  Order[]
+  reservations  Reservation[]
+
+  @@map("users")
+}
+model RefreshToken {
+  id        Int       @id @default(autoincrement())
+  tokenHash String    @unique @map("token_hash")
+  userId    Int       @map("user_id")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@map("refresh_tokens")
+}
+model Category {
+  id        Int      @id @default(autoincrement())
+  name  String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  dishs  Dish[]
+
+  @@map("categories")
+}
+model Dish {
+  id        Int      @id @default(autoincrement())
+  name  String
+  description  String
+  price  Decimal @db.Decimal(10, 2)
+  categoryId  Int  @map("category_id")
+  category  Category  @relation(fields: [categoryId], references: [id])
+  imageUrl  String  @map("image_url")
+  isAvailable  Boolean  @map("is_available")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  orderItems  OrderItem[]
+
+  @@map("dishes")
+}
+model Order {
+  id        Int      @id @default(autoincrement())
+  userId  Int  @map("user_id")
+  user  User  @relation(fields: [userId], references: [id])
+  orderType  String  @map("order_type")
+  deliveryAddress String? @map("delivery_address")
+  status  String
+  paymentStatus  String  @map("payment_status")
+  totalAmount  Decimal  @map("total_amount") @db.Decimal(10, 2)
+  deliveryFee  Decimal  @map("delivery_fee") @db.Decimal(10, 2)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  items  OrderItem[]
+  paidAt DateTime? @map("paid_at")
+  stripeSessionId String? @unique @map("stripe_session_id")
+  contactName String? @map("contact_name")
+  contactPhone String? @map("contact_phone")
+  notes String?
+
+  @@map("orders")
+}
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId  Int  @map("order_id")
+  order  Order  @relation(fields: [orderId], references: [id])
+  dishId  Int  @map("dish_id")
+  dish  Dish  @relation(fields: [dishId], references: [id])
+  quantity  Int
+  price  Decimal @db.Decimal(10, 2)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("orderitems")
+}
+model Reservation {
+  id        Int      @id @default(autoincrement())
+  userId  Int  @map("user_id")
+  user  User  @relation(fields: [userId], references: [id])
+  partySize  Int  @map("party_size")
+  reservationDate  DateTime  @map("reservation_date")
+  reservationTime  String  @map("reservation_time")
+  status  String
+  specialRequests  String  @map("special_requests")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("reservations")
+}

@@ -1,0 +1,27 @@
+.dish-card {
+  background: var(--surface, #161f2e);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 14px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+}
+
+.dish-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg, 0 16px 30px rgba(0, 0, 0, 0.35));
+  border-color: var(--primary);
+}
+
+.dish-card img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+  background: var(--bg-secondary, #111827);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Media
